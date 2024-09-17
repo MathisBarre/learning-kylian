@@ -50,6 +50,8 @@ app.post("/order-tickets", async (req, res) => {
           });
 
         if (user) {
+          sendgrid.setApiKey("SG.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
+
           await sendgrid.send({
             to: user.email,
             from: "orders@example.com",
@@ -69,8 +71,9 @@ app.post("/order-tickets", async (req, res) => {
     } else {
       res.status(404).json({ message: "Event not found" });
     }
-  } catch {
-    res.status(500).json({ message: "An error occured" });
+  } catch (e) {
+    const message = e instanceof Error ? e.message : "An error occured";
+    res.status(500).json({ message });
   }
 });
 
