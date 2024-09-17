@@ -22,7 +22,18 @@ const events = [
   },
 ];
 
-export const fakeDb = {
+const users = [
+  {
+    id: 1,
+    email: "user1@example.com",
+  },
+  {
+    id: 2,
+    email: "user2@example.com",
+  },
+];
+
+export const postgresql = {
   query: (sql: string, params?: any): any => {
     console.log("Fake DB");
     console.log("Query: ", sql, params);
@@ -45,6 +56,15 @@ export const fakeDb = {
       }
 
       events[eventIndex].remainingNbOfTickets = remainingNbOfTickets;
+    }
+
+    if (sql === "SELECT * FROM users") {
+      return users;
+    }
+
+    if (sql === "SELECT * FROM users WHERE id = ?") {
+      const userId = params.id;
+      return users.find((user) => user.id === userId);
     }
   },
 };

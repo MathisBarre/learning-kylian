@@ -1,5 +1,6 @@
 import express from "express";
-import { fakeDb } from "./fakeDb";
+import { sendgrid } from "./fakeMailing";
+import { postgresql } from "./fakeDB";
 
 const app = express();
 
@@ -12,40 +13,64 @@ app.get("/", (req, res) => {
 });
 
 app.get("/events", (req, res) => {
-  res.json(fakeDb.query("SELECT * FROM events"));
+  res.json(postgresql.query("SELECT * FROM events"));
 });
 
-app.post("/order-tickets", (req, res) => {
-  const { eventId, quantity } = req.body;
+app.post("/order-tickets", async (req, res) => {
+  try {
+    const { userId, eventId, quantity } = req.body;
 
-  const event:
-    | {
-        id: number;
-        name: string;
-        description: string;
-        date: string;
-        remainingNbOfTickets: number;
+    const event:
+      | {
+          id: number;
+          name: string;
+          description: string;
+          date: string;
+          remainingNbOfTickets: number;
+        }
+      | undefined = postgresql.query("SELECT * FROM events WHERE id = ?", {
+      id: eventId,
+    });
+
+    if (event) {
+      if (event.remainingNbOfTickets > quantity) {
+        const remainingNbOfTickets = event.remainingNbOfTickets - quantity;
+
+        postgresql.query(
+          "UPDATE events SET remainingNbOfTickets = ? WHERE id = ?",
+          {
+            remainingNbOfTickets,
+            eventId,
+          }
+        );
+
+        const user: { id: number; email: string } | undefined =
+          postgresql.query("SELECT * FROM users WHERE id = ?", {
+            id: userId,
+          });
+
+        if (user) {
+          await sendgrid.send({
+            to: user.email,
+            from: "orders@example.com",
+            subject: "Your order",
+            text: `You successfully ordered ${quantity} tickets for ${event.name}. There is ${remainingNbOfTickets} remaining tickets for ${event.name}. Tell your friends!`,
+          });
+        } else {
+          console.error("User not found, cannot send email");
+        }
+
+        res.json({
+          message: `You ordered ${quantity} tickets for ${event.name} successfully !`,
+        });
+      } else {
+        res.status(400).json({ message: "Not enough tickets" });
       }
-    | undefined = fakeDb.query("SELECT * FROM events WHERE id = ?", {
-    id: eventId,
-  });
-
-  if (event) {
-    if (event.remainingNbOfTickets > quantity) {
-      const remainingNbOfTickets = event.remainingNbOfTickets - quantity;
-
-      fakeDb.query("UPDATE events SET remainingNbOfTickets = ? WHERE id = ?", {
-        remainingNbOfTickets,
-        eventId,
-      });
-
-      res.json({
-        message: `You ordered ${quantity} tickets for ${event.name}. There is ${remainingNbOfTickets} remaining tickets`,
-      });
+    } else {
+      res.status(404).json({ message: "Event not found" });
     }
-    res.status(400).json({ message: "Not enough tickets" });
-  } else {
-    res.status(404).json({ message: "Event not found" });
+  } catch {
+    res.status(500).json({ message: "An error occured" });
   }
 });
 
