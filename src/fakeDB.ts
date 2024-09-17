@@ -25,7 +25,7 @@ const events = [
 export const fakeDb = {
   query: (sql: string, params?: any): any => {
     console.log("Fake DB");
-    console.log(sql, params);
+    console.log("Query: ", sql, params);
 
     if (sql === "SELECT * FROM events") {
       return events;

@@ -10,6 +10,6 @@ POST http://localhost:3000/order-tickets
 Content-Type: application/json
 
 {
-  "eventId": 1,
-  "quantity": 2
+  "eventId": 3,
+  "quantity": 42
 }
