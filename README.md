@@ -1,5 +1,5 @@
-Au début de la boite, un quelqu'un a commencé à faire un backend avec Node.js et Express.
-Pourquoi pas, mais on veut rendre son code mieux grâce à la clean architecture.
+Michel de la compta a commencé à faire un backend avec Node.js et Express.
+Pourquoi pas, mais on veut améliorer son code grâce à la clean architecture et au clean code.
 
 Vous aurez besoin de l'extension [REST Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client) pour faire des requêtes HTTP.
 
