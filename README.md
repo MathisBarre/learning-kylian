@@ -10,4 +10,8 @@ Objectifs :
   - Presenter
   - ...
 - Appliquer le clean code https://github.com/labs42io/clean-code-typescript
+  - Early return
+  - Never nest
+  - Good naming
+  - Extract types
 - Une fois la logique séparée, on peut mettre en place un serveur https://fastify.dev/ qui pourra cohabiter avec le serveur Express

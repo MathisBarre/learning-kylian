@@ -1,0 +1,15 @@
+GET http://localhost:3000/
+
+###
+
+GET http://localhost:3000/events
+
+###
+
+POST http://localhost:3000/order-tickets
+Content-Type: application/json
+
+{
+  "eventId": 1,
+  "quantity": 2
+}
