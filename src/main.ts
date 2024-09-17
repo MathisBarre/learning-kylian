@@ -30,26 +30,23 @@ app.post("/order-tickets", (req, res) => {
     id: eventId,
   });
 
-  if (!event) {
-    res.status(404).json({ message: "Event not found" });
-    return;
-  }
+  if (event) {
+    if (event.remainingNbOfTickets > quantity) {
+      const remainingNbOfTickets = event.remainingNbOfTickets - quantity;
 
-  if (event.remainingNbOfTickets < quantity) {
+      fakeDb.query("UPDATE events SET remainingNbOfTickets = ? WHERE id = ?", {
+        remainingNbOfTickets,
+        eventId,
+      });
+
+      res.json({
+        message: `You ordered ${quantity} tickets for ${event.name}. There is ${remainingNbOfTickets} remaining tickets`,
+      });
+    }
     res.status(400).json({ message: "Not enough tickets" });
-    return;
+  } else {
+    res.status(404).json({ message: "Event not found" });
   }
-
-  const remainingNbOfTickets = event.remainingNbOfTickets - quantity;
-
-  fakeDb.query("UPDATE events SET remainingNbOfTickets = ? WHERE id = ?", {
-    remainingNbOfTickets,
-    eventId,
-  });
-
-  res.json({
-    message: `You ordered ${quantity} tickets for ${event.name}. There is ${remainingNbOfTickets} remaining tickets`,
-  });
 });
 
 app.listen(3000, () => {
